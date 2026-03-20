@@ -1,0 +1,100 @@
+import React, { useState } from 'react';
+import { Dices } from 'lucide-react';
+
+const App = () => {
+  const [numbers, setNumbers] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // 로또 번호 생성 로직 (1~45 중 중복 없는 6개 숫자)
+  const generateLottoNumbers = () => {
+    setIsGenerating(true);
+    
+    // 약간의 딜레이를 주어 추첨하는 느낌을 연출합니다.
+    setTimeout(() => {
+      const numSet = new Set();
+      while (numSet.size < 6) {
+        const randomNum = Math.floor(Math.random() * 45) + 1;
+        numSet.add(randomNum);
+      }
+      
+      // 오름차순 정렬
+      const sortedNumbers = Array.from(numSet).sort((a, b) => a - b);
+      setNumbers(sortedNumbers);
+      setIsGenerating(false);
+    }, 400);
+  };
+
+  // 번호 대역별 색상 반환 함수
+  const getNumberColor = (num) => {
+    if (num <= 10) return 'bg-yellow-400 text-gray-900 border-yellow-500'; // 노랑
+    if (num <= 20) return 'bg-blue-500 text-white border-blue-600';     // 파랑
+    if (num <= 30) return 'bg-red-500 text-white border-red-600';       // 빨강
+    if (num <= 40) return 'bg-gray-500 text-white border-gray-600';     // 회색
+    return 'bg-green-500 text-white border-green-600';                  // 녹색
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+        
+        {/* 헤더 섹션 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-800 mb-2 flex items-center justify-center gap-2">
+            <Dices className="text-blue-500" size={32} />
+            행운의 로또 추첨기
+          </h1>
+          <p className="text-gray-500">1부터 45까지의 숫자 중 6개를 뽑아보세요!</p>
+        </div>
+
+        {/* 번호 표시 섹션 */}
+        <div className="flex flex-wrap justify-center gap-3 mb-10 min-h-[4rem]">
+          {numbers.length === 0 ? (
+            <div className="text-gray-400 italic flex items-center h-16">
+              아직 생성된 번호가 없습니다. 버튼을 눌러주세요!
+            </div>
+          ) : (
+            numbers.map((num, index) => (
+              <div
+                key={index}
+                className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-md border border-opacity-50 transform transition-all duration-500 animate-bounce-short ${getNumberColor(num)}`}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {num}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 버튼 섹션 */}
+        <button
+          onClick={generateLottoNumbers}
+          disabled={isGenerating}
+          className={`w-full py-4 rounded-xl text-lg font-bold text-white shadow-lg transition-all duration-200 flex items-center justify-center gap-2
+            ${isGenerating 
+              ? 'bg-blue-300 cursor-not-allowed' 
+              : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl active:scale-95'
+            }`}
+        >
+          {isGenerating ? '번호 뽑는 중...' : '번호 생성'}
+        </button>
+        
+        <p className="mt-6 text-xs text-gray-400">
+          * 이 생성기는 재미를 위한 것으로, 실제 당첨을 보장하지 않습니다.
+        </p>
+
+        {/* 커스텀 애니메이션 스타일 */}
+        <style dangerouslySetInnerHTML={{__html: `
+          @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15%); }
+          }
+          .animate-bounce-short {
+            animation: bounce-short 0.5s ease-in-out;
+          }
+        `}} />
+      </div>
+    </div>
+  );
+};
+
+export default App;
